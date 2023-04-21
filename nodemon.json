@@ -1,0 +1,10 @@
+{
+    "env": {
+        "MYSQL_USER" : "u303536921_admin",
+        "MYSQL_PASSWORD" : "rjR?h#1A",
+        "MYSQL_DATABASE" : "u303536921_entreg10",
+        "MYSQL_HOST" : "sql883.main-hosting.eu",
+        "MYSQL_PORT" : 3306,
+        "JWT_KEY" : "segredo" 
+    }
+}
