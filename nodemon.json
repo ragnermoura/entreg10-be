@@ -3,7 +3,7 @@
         "MYSQL_USER" : "entreg10",
         "MYSQL_PASSWORD" : "Gk17DMvQdtCG1C6",
         "MYSQL_DATABASE" : "entreg10",
-        "MYSQL_HOST" : "localhost",
+        "MYSQL_HOST" : "mysql.entreg10.com.br",
         "MYSQL_PORT" : 3306,
         "JWT_KEY" : "segredo" 
     }
