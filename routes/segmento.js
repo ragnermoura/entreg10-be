@@ -82,7 +82,7 @@ router.patch('/edit', (req, res, next) => {
                         request: {
                             tipo: 'PATCH',
                             descricao: 'Atualiza um status de acesso',
-                            url: 'http://localhost:3000/status/' + req.body.id_segmento
+                            url: 'https://entreg10.com.br:21038/status/' + req.body.id_segmento
                         }
                     }
                 }

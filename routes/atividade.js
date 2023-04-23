@@ -194,7 +194,7 @@ router.patch('/edit', (req, res, next) => {
                         request: {
                             tipo: 'PATCH',
                             descricao: 'Atualiza um nivel de acesso',
-                            url: 'http://localhost:3000/nivel/' + req.body.id_plano
+                            url: 'https://entreg10.com.br:21038/nivel/' + req.body.id_plano
                         }
                     }
                 }

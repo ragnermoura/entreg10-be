@@ -155,7 +155,7 @@ router.post("/cadastro", (req, res, next) => {
                     request: {
                       tipo: "GET",
                       descricao: "Pesquisa um usuário",
-                      url: "http://localhost:3000/usuarios",
+                      url: "https://entreg10.com.br:21038/usuarios",
                     },
                   },
                 };
