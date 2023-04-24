@@ -1,9 +1,9 @@
 {
     "env": {
-        "MYSQL_USER" : "entreg10",
-        "MYSQL_PASSWORD" : "Gk17DMvQdtCG1C6",
-        "MYSQL_DATABASE" : "entreg10",
-        "MYSQL_HOST" : "mysql27-farm10.kinghost.net",
+        "MYSQL_USER" : "u303536921_admin",
+        "MYSQL_PASSWORD" : "3mN&evNS$$l",
+        "MYSQL_DATABASE" : "u303536921_entreg10",
+        "MYSQL_HOST" : "sql883.main-hosting.eu",
         "MYSQL_PORT" : 3306,
         "JWT_KEY" : "segredo" 
     }
