@@ -5,7 +5,6 @@ const mysql = require("../mysql").pool;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-
 router.get("/", (req, res, next) => {
   mysql.getConnection((error, conn) => {
     if (error) {
@@ -25,12 +24,15 @@ router.get("/entregadores", (req, res, next) => {
     if (error) {
       return res.status(500).send({ error: error });
     }
-    conn.query("SELECT * FROM tb001_user WHERE id_nivel = 3", (error, resultado, fields) => {
-      if (error) {
-        return res.status(500).send({ error: error });
+    conn.query(
+      "SELECT * FROM tb001_user WHERE id_nivel = 3",
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
       }
-      return res.status(200).send({ response: resultado });
-    });
+    );
   });
 });
 
@@ -52,16 +54,13 @@ router.get("/:id_users", (req, res, next) => {
   });
 });
 
-router.patch("/edit_status_empresa", (req, res, next) => { 
+router.patch("/edit_status_empresa", (req, res, next) => {
   mysql.getConnection((error, conn) => {
     conn.query(
       `UPDATE tb001_user 
             SET id_status = ?
             WHERE id_users = ?`,
-      [
-        req.body.status,
-        req.body.id_users,
-      ],
+      [req.body.status, req.body.id_users],
       (error, resultado, field) => {
         conn.release();
         if (error) {
@@ -75,7 +74,7 @@ router.patch("/edit_status_empresa", (req, res, next) => {
         });
       }
     );
-  })
+  });
 });
 
 router.delete("/delete", (req, res, next) => {
@@ -131,7 +130,6 @@ router.post("/cadastro", (req, res, next) => {
                 hash,
                 req.body.nivel,
                 req.body.status,
-                
               ],
 
               (error, result) => {
@@ -142,20 +140,20 @@ router.post("/cadastro", (req, res, next) => {
                   });
                 }
 
-  
                 const response = {
-                  mensagem: "Usuário cadastrado com sucesso",
+                  dados: {
+                    mensagem: "Usuário cadastrado com sucesso",
+                    usuarioCriado: {
+                      id_users: result.insertId,
+                      nome: req.body.nome,
+                      email: req.body.email,
+                      nivel: req.body.nivel,
 
-                  usuarioCriado: {
-                    id_users: result.insertId,
-                    nome: req.body.nome,
-                    email: req.body.email,
-                    nivel: req.body.nivel,
-
-                    request: {
-                      tipo: "GET",
-                      descricao: "Pesquisa um usuário",
-                      url: "https://entreg10.com.br:21038/usuarios",
+                      request: {
+                        tipo: "GET",
+                        descricao: "Pesquisa um usuário",
+                        url: "https://entreg10.com.br:21038/usuarios",
+                      },
                     },
                   },
                 };
@@ -169,7 +167,6 @@ router.post("/cadastro", (req, res, next) => {
     );
   });
 }),
-
   router.post("/login", (req, res, next) => {
     mysql.getConnection((err, conn) => {
       if (err) {
@@ -218,6 +215,4 @@ router.post("/cadastro", (req, res, next) => {
       });
     });
   }),
-
-  
   (module.exports = router);
