@@ -132,7 +132,7 @@ router.post('/entregador', (req, res, next) => {
     mysql.getConnection((error, conn) => {
         if (error) { return res.status(500).send({ error: error }) }
         conn.query(
-            'INSERT INTO tb006_dados_entregador (endereco, cep, telefone1, telefone2, cnh, cpf, id_user, marca_moto, modelo_moto, ano_moto) VALUES (?,?,?,?,?,?,?,?,?,?)',
+            'INSERT INTO tb006_dados_entregador (endereco, cep, telefone1, telefone2, cnh, cpf, pix, id_user, marca_moto, modelo_moto, ano_moto) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
             [
                 req.body.endereco,
                 req.body.cep,
@@ -140,6 +140,7 @@ router.post('/entregador', (req, res, next) => {
                 req.body.telefone2,
                 req.body.cnh,
                 req.body.cpf,
+                req.body.pix,
                 req.body.id_user,
                 req.body.marca_moto,
                 req.body.modelo_moto,
