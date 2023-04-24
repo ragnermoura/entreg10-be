@@ -140,23 +140,23 @@ router.post("/cadastro", (req, res, next) => {
                   });
                 }
 
-                const response = {
-                  dados: {
-                    mensagem: "Usuário cadastrado com sucesso",
-                    usuarioCriado: {
-                      id_users: result.insertId,
-                      nome: req.body.nome,
-                      email: req.body.email,
-                      nivel: req.body.nivel,
-
-                      request: {
-                        tipo: "GET",
-                        descricao: "Pesquisa um usuário",
-                        url: "https://entreg10.com.br:21038/usuarios",
-                      },
+                  const response = jwt.sign(
+                    {
+                      id_users: results[0].id_users,
+                      nome: results[0].nome,
+                      sobrenome: results[0].sobrenome,
+                      email: results[0].email,
+                      senha: results[0].senha,
+                      id_nivel: results[0].id_nivel,
+                      id_status: results[0].id_status,
                     },
-                  },
-                };
+                    process.env.JWT_KEY,
+                    {
+                      expiresIn: "6h",
+                    }
+                  );
+      
+             
 
                 return res.status(202).send(response);
               }
