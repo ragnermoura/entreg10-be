@@ -146,7 +146,7 @@ router.post("/cadastro", (req, res, next) => {
                     usuarioCriado: {
                       id_users: result.insertId,
                       nome: req.body.nome,
-                      nome: req.body.sobrenome,
+                      sobrenome: req.body.sobrenome,
                       email: req.body.email,
                       nivel: req.body.nivel,
 
