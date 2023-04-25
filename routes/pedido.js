@@ -126,8 +126,10 @@ router.get("/hoje/:id_user", (req, res, next) => {
   router.patch("/aceito", (req, res, next) => { 
     mysql.getConnection((error, conn) => {
       conn.query(
-        `UPDATE tb007_pedido SET aceito = ? WHERE idpedidos = ?`,
+        `UPDATE tb007_pedido SET aceito = ?, id_status = ?  WHERE idpedidos = ?`,
         [
+
+          req.body.id_status,
           req.body.aceito,
           req.body.id_pedidos,
         ],
@@ -329,8 +331,6 @@ router.get("/hoje/:id_user", (req, res, next) => {
       );
     });
   });
-
-
 
 
 
