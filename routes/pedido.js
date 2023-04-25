@@ -106,7 +106,7 @@ router.get("/abertos", (req, res, next) => {
         return res.status(500).send({ error: error });
       }
       conn.query(
-        "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE id_entregador = ? AND id_status = 4 AND data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
+        "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ?  AND AND p.id_status = 4   AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
         [req.params.id_user],
         (error, resultado, fields) => {
           if (error) {
