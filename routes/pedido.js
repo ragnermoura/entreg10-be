@@ -314,6 +314,24 @@ router.get("/hoje/:id_user", (req, res, next) => {
     });
   });
 
+    router.get("/suas-entregas-detalhes/:id_user", (req, res, next) => {
+    mysql.getConnection((error, conn) => {
+      if (error) {
+        return res.status(500).send({ error: error });
+      }
+      conn.query(
+        "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ?  AND p.aceito = 1 AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
+        [req.params.id_user],
+        (error, resultado, fields) => {
+          if (error) {
+            return res.status(500).send({ error: error });
+          }
+          return res.status(200).send({ response: resultado });
+        }
+      );
+    });
+  });
+
 
   router.get("/suas-entregas-aceito/:id_user", (req, res, next) => {
     mysql.getConnection((error, conn) => {
