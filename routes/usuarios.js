@@ -4,6 +4,7 @@ const router = express.Router();
 const mysql = require("../mysql").pool;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+require('dotenv').config()
 
 router.get("/", (req, res, next) => {
   mysql.getConnection((error, conn) => {
