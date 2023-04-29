@@ -35,13 +35,13 @@ app.use((req, res, next) => {
     next();
 })
 
-app.use('/usuarios', rotaUsuarios);
-app.use('/perfil', rotaPerfil);
-app.use('/status', rotaStatus);
-app.use('/nivel', rotaNivel);
-app.use('/segmento', rotaSegmento);
-app.use('/pedido', rotaPedido);
-app.use('/entregador', rotaEntregador);
+app.use('/api/usuarios', rotaUsuarios);
+app.use('/api/perfil', rotaPerfil);
+app.use('/api/status', rotaStatus);
+app.use('/api/nivel', rotaNivel);
+app.use('/api/segmento', rotaSegmento);
+app.use('/api/pedido', rotaPedido);
+app.use('/api/entregador', rotaEntregador);
 
 app.get('/api/security', (req,res) => {
     res.status(200).json({message: 'OK'})
