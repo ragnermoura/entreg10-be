@@ -13,6 +13,7 @@ const rotaPerfil = require('./routes/perfil')
 const rotaSegmento = require('./routes/segmento')
 const rotaPedido = require('./routes/pedido')
 const rotaEntregador = require('./routes/entregador')
+const rotaClientes = require('./routes/clientes')
 
 
 app.use(morgan('dev'));
@@ -42,6 +43,7 @@ app.use('/api/nivel', rotaNivel);
 app.use('/api/segmento', rotaSegmento);
 app.use('/api/pedido', rotaPedido);
 app.use('/api/entregador', rotaEntregador);
+app.use('/api/clientes', rotaClientes);
 
 app.get('/api/security', (req,res) => {
     res.status(200).json({message: 'OK'})

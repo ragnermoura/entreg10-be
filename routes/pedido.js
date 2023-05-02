@@ -1,10 +1,10 @@
-
 require("dotenv").config();
 const express = require("express");
 const router = express.Router();
 const mysql = require("../mysql").pool;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { response } = require("../app");
 
 router.get("/", (req, res, next) => {
   mysql.getConnection((error, conn) => {
@@ -21,521 +21,12 @@ router.get("/", (req, res, next) => {
 });
 
 router.get("/abertos", (req, res, next) => {
-    mysql.getConnection((error, conn) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      conn.query("SELECT tb007_pedido.*, tb001_user.nome FROM tb007_pedido JOIN tb001_user ON tb007_pedido.id_solicitante = tb001_user.id_users WHERE tb007_pedido.id_status = 3 LIMIT 1", (error, resultado, fields) => {
-        if (error) {
-          return res.status(500).send({ error: error });
-        }
-        return res.status(200).send({ response: resultado });
-      });
-    });
-  });
-
-  router.get("/fila", (req, res, next) => {
-    mysql.getConnection((error, conn) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      conn.query("SELECT * FROM tb007_pedido WHERE id_status = 3", (error, resultado, fields) => {
-        if (error) {
-          return res.status(500).send({ error: error });
-        }
-        return res.status(200).send({ response: resultado });
-      });
-    });
-  });
-
-  router.get("/em-andamento", (req, res, next) => {
-    mysql.getConnection((error, conn) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      conn.query("SELECT * FROM tb007_pedido WHERE id_status = 4", (error, resultado, fields) => {
-        if (error) {
-          return res.status(500).send({ error: error });
-        }
-        return res.status(200).send({ response: resultado });
-      });
-    });
-  });
-
-  router.get("/entregue", (req, res, next) => {
-    mysql.getConnection((error, conn) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      conn.query("SELECT * FROM tb007_pedido WHERE id_status = 5", (error, resultado, fields) => {
-        if (error) {
-          return res.status(500).send({ error: error });
-        }
-        return res.status(200).send({ response: resultado });
-      });
-    });
-  });
-
-  router.patch("/edit", (req, res, next) => { 
-    mysql.getConnection((error, conn) => {
-      conn.query(
-        `UPDATE tb007_pedido SET id_status = ?, id_entregador = ? WHERE idpedidos = ?`,
-        [
-          req.body.id_status,
-          req.body.id_entregador,
-          req.body.id_pedidos,
-        ],
-        (error, resultado, field) => {
-          conn.release();
-          if (error) {
-            return res.status(500).send({
-              error: error,
-              response: null,
-            });
-          }
-          res.status(201).send({
-            mensagem: "Dados de usuário alterados com sucesso!",
-          });
-        }
-      );
-    })
-  });
-
-//Rotas de Soma Entregador
-
-router.get("/hoje/:id_user", (req, res, next) => {
-  mysql.getConnection((error, conn) => {
-    if (error) {
-      return res.status(500).send({ error: error });
-    }
-    conn.query("SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)", 
-    [req.params.id_user],
-    (error, resultado, fields) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      return res.status(200).send({ response: resultado });
-    });
-  });
-});
-
-router.get("/semana/:id_user", (req, res, next) => {
-  mysql.getConnection((error, conn) => {
-    if (error) {
-      return res.status(500).send({ error: error });
-    }
-    conn.query("SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 7 DAY)", 
-    [req.params.id_user],
-    (error, resultado, fields) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      return res.status(200).send({ response: resultado });
-    });
-  });
-});
-
-router.get("/mes/:id_user", (req, res, next) => {
-  mysql.getConnection((error, conn) => {
-    if (error) {
-      return res.status(500).send({ error: error });
-    }
-    conn.query("SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND MONTH(p.data_pedido) = MONTH(NOW())", 
-    [req.params.id_user],
-    (error, resultado, fields) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      return res.status(200).send({ response: resultado });
-    });
-  });
-});
-
-
-//Rotas de Soma Cliente
-
-router.get("/hoje/cliente/:id_user", (req, res, next) => {
-  mysql.getConnection((error, conn) => {
-    if (error) {
-      return res.status(500).send({ error: error });
-    }
-    conn.query("SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_solicitante = ? AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)", 
-    [req.params.id_user],
-    (error, resultado, fields) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      return res.status(200).send({ response: resultado });
-    });
-  });
-});
-
-router.get("/semana/cliente/:id_user", (req, res, next) => {
-  mysql.getConnection((error, conn) => {
-    if (error) {
-      return res.status(500).send({ error: error });
-    }
-    conn.query("SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_solicitante = ? AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 7 DAY)", 
-    [req.params.id_user],
-    (error, resultado, fields) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      return res.status(200).send({ response: resultado });
-    });
-  });
-});
-
-router.get("/mes/cliente/:id_user", (req, res, next) => {
-  mysql.getConnection((error, conn) => {
-    if (error) {
-      return res.status(500).send({ error: error });
-    }
-    conn.query("SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_solicitante = ? AND p.data_pedido >= MONTH(p.data_pedido) = MONTH(NOW())", 
-    [req.params.id_user],
-    (error, resultado, fields) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      return res.status(200).send({ response: resultado });
-    });
-  });
-});
-
-
-
-//Rotas de Soma Admin
-router.get("/hoje/admin/:id_user", (req, res, next) => {
-  mysql.getConnection((error, conn) => {
-    if (error) {
-      return res.status(500).send({ error: error });
-    }
-    conn.query("SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)", 
-    [req.params.id_user],
-    (error, resultado, fields) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      return res.status(200).send({ response: resultado });
-    });
-  });
-});
-
-router.get("/semana/admin/:id_user", (req, res, next) => {
-  mysql.getConnection((error, conn) => {
-    if (error) {
-      return res.status(500).send({ error: error });
-    }
-    conn.query("SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.data_pedido >= DATE_SUB(NOW(), INTERVAL 7 DAY)", 
-    [req.params.id_user],
-    (error, resultado, fields) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      return res.status(200).send({ response: resultado });
-    });
-  });
-});
-
-router.get("/mes/admin/:id_user", (req, res, next) => {
-  mysql.getConnection((error, conn) => {
-    if (error) {
-      return res.status(500).send({ error: error });
-    }
-    conn.query("SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE MONTH(p.data_pedido) = MONTH(NOW())", 
-    [req.params.id_user],
-    (error, resultado, fields) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      return res.status(200).send({ response: resultado });
-    });
-  });
-});
-
-
-
-
-
-
-//Rotas de mudança de estatus
-
-  router.patch("/aceito", (req, res, next) => { 
-    mysql.getConnection((error, conn) => {
-      conn.query(
-        `UPDATE tb007_pedido SET aceito = ?, id_status = 9 WHERE idpedidos = ?`,
-        [
-
-          req.body.aceito,
-          req.body.id_pedidos,
-        ],
-        (error, resultado, field) => {
-          conn.release();
-          if (error) {
-            return res.status(500).send({
-              error: error,
-              response: null,
-            });
-          }
-          res.status(201).send({
-            mensagem: "Dados de usuário alterados com sucesso!",
-          });
-        }
-      );
-    })
-  });
-
-
-  router.patch("/status-em-coleta", (req, res, next) => { 
-    mysql.getConnection((error, conn) => {
-      conn.query(
-        `UPDATE tb007_pedido SET id_status = ? WHERE idpedidos = ?`,
-        [
-          req.body.id_status,
-          req.body.id_pedidos,
-        ],
-        (error, resultado, field) => {
-          conn.release();
-          if (error) {
-            return res.status(500).send({
-              error: error,
-              response: null,
-            });
-          }
-          res.status(201).send({
-            mensagem: "Dados de usuário alterados com sucesso!",
-          });
-        }
-      );
-    })
-  });
-
-  router.patch("/status-em-entrega", (req, res, next) => { 
-    mysql.getConnection((error, conn) => {
-      conn.query(
-        `UPDATE tb007_pedido SET id_status = ? WHERE idpedidos = ?`,
-        [
-          req.body.id_status,
-          req.body.id_pedidos,
-        ],
-        (error, resultado, field) => {
-          conn.release();
-          if (error) {
-            return res.status(500).send({
-              error: error,
-              response: null,
-            });
-          }
-          res.status(201).send({
-            mensagem: "Dados de usuário alterados com sucesso!",
-          });
-        }
-      );
-    })
-  });
-
-  router.patch("/status-entregue", (req, res, next) => { 
-    mysql.getConnection((error, conn) => {
-      conn.query(
-        `UPDATE tb007_pedido SET id_status = ? WHERE idpedidos = ?`,
-        [
-          req.body.id_status,
-          req.body.id_pedidos,
-        ],
-        (error, resultado, field) => {
-          conn.release();
-          if (error) {
-            return res.status(500).send({
-              error: error,
-              response: null,
-            });
-          }
-          res.status(201).send({
-            mensagem: "Dados de usuário alterados com sucesso!",
-          });
-        }
-      );
-    })
-  });
-
-
-
-//Rotas de exibição
-
-  router.get("/suas-entregas/:id_user", (req, res, next) => {
-    mysql.getConnection((error, conn) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      conn.query(
-        "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.id_status = 4 AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
-        [req.params.id_user],
-        (error, resultado, fields) => {
-          if (error) {
-            return res.status(500).send({ error: error });
-          }
-          return res.status(200).send({ response: resultado });
-        }
-      );
-    });
-  });
-
-  router.get("/historic/:id_user", (req, res, next) => {
-    mysql.getConnection((error, conn) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      conn.query(
-        "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ?",
-        [req.params.id_user],
-        (error, resultado, fields) => {
-          if (error) {
-            return res.status(500).send({ error: error });
-          }
-          return res.status(200).send({ response: resultado });
-        }
-      );
-    });
-  });
-
-  router.get("/suas-entregas-entregue/:id_user", (req, res, next) => {
-    mysql.getConnection((error, conn) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      conn.query(
-        "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.id_status = 5 AND p.aceito = 1 AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
-        [req.params.id_user],
-        (error, resultado, fields) => {
-          if (error) {
-            return res.status(500).send({ error: error });
-          }
-          return res.status(200).send({ response: resultado });
-        }
-      );
-    });
-  });
-
-  router.get("/suas-entregas-entrega/:id_user", (req, res, next) => {
-    mysql.getConnection((error, conn) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      conn.query(
-        "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.id_status = 3 AND p.aceito = 1 AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
-        [req.params.id_user],
-        (error, resultado, fields) => {
-          if (error) {
-            return res.status(500).send({ error: error });
-          }
-          return res.status(200).send({ response: resultado });
-        }
-      );
-    });
-  });
-
-  router.get("/suas-entregas-coleta/:id_user", (req, res, next) => {
-    mysql.getConnection((error, conn) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      conn.query(
-        "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.id_status = 8 AND p.aceito = 1 AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
-        [req.params.id_user],
-        (error, resultado, fields) => {
-          if (error) {
-            return res.status(500).send({ error: error });
-          }
-          return res.status(200).send({ response: resultado });
-        }
-      );
-    });
-  });
-
-  router.get("/suas-entregas-fila/:id_user", (req, res, next) => {
-    mysql.getConnection((error, conn) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      conn.query(
-        "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.id_status = 9 AND p.aceito = 1 AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
-        [req.params.id_user],
-        (error, resultado, fields) => {
-          if (error) {
-            return res.status(500).send({ error: error });
-          }
-          return res.status(200).send({ response: resultado });
-        }
-      );
-    });
-  });
-
-
-    router.get("/suas-entregas-detalhes/:id_user", (req, res, next) => {
-    mysql.getConnection((error, conn) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      conn.query(
-        "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ?  AND p.aceito = 1 AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
-        [req.params.id_user],
-        (error, resultado, fields) => {
-          if (error) {
-            return res.status(500).send({ error: error });
-          }
-          return res.status(200).send({ response: resultado });
-        }
-      );
-    });
-  });
-
-
-  router.get("/suas-entregas-aceito/:id_user", (req, res, next) => {
-    mysql.getConnection((error, conn) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      conn.query(
-        "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.aceito = 1 AND p.id_status = 3 AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
-        [req.params.id_user],
-        (error, resultado, fields) => {
-          if (error) {
-            return res.status(500).send({ error: error });
-          }
-          return res.status(200).send({ response: resultado });
-        }
-      );
-    });
-  });
-
-  router.get("/suas-entregas-rejeitado/:id_user", (req, res, next) => {
-    mysql.getConnection((error, conn) => {
-      if (error) {
-        return res.status(500).send({ error: error });
-      }
-      conn.query(
-        "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.aceito = 0 AND p.id_status = 7 AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
-        [req.params.id_user],
-        (error, resultado, fields) => {
-          if (error) {
-            return res.status(500).send({ error: error });
-          }
-          return res.status(200).send({ response: resultado });
-        }
-      );
-    });
-  });
-
-
-
-router.get("/:id_solicitante", (req, res, next) => {
   mysql.getConnection((error, conn) => {
     if (error) {
       return res.status(500).send({ error: error });
     }
     conn.query(
-      "SELECT * FROM tb007_pedido WHERE id_solicitante = ?",
-      [req.params.id_solicitante],
+      "SELECT tb007_pedido.*, tb001_user.nome FROM tb007_pedido JOIN tb001_user ON tb007_pedido.id_solicitante = tb001_user.id_users WHERE tb007_pedido.id_status = 4 LIMIT 1",
       (error, resultado, fields) => {
         if (error) {
           return res.status(500).send({ error: error });
@@ -546,6 +37,458 @@ router.get("/:id_solicitante", (req, res, next) => {
   });
 });
 
+router.get("/fila", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT * FROM tb007_pedido WHERE id_status = 4",
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ ßresponse: resultado });
+      }
+    );
+  });
+});
+
+router.get("/em-andamento", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT * FROM tb007_pedido JOIN tb001_user ON tb007_pedido.id_entregador = tb001_user.id_users WHERE tb007_pedido.id_status = 10;",
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
+
+router.get("/entregue", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT * FROM tb007_pedido JOIN tb001_user ON tb007_pedido.id_entregador = tb001_user.id_users WHERE tb007_pedido.id_status = 5;",
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
+
+router.patch("/edit", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    conn.query(
+      `UPDATE tb007_pedido SET id_status = ?, id_entregador = ? WHERE idpedidos = ?`,
+      [req.body.id_status, req.body.id_entregador, req.body.id_pedidos],
+      (error, resultado, field) => {
+        conn.release();
+        if (error) {
+          return res.status(500).send({
+            error: error,
+            response: null,
+          });
+        }
+        res.status(201).send({
+          mensagem: "Dados de usuário alterados com sucesso!",
+        });
+      }
+    );
+  });
+});
+
+//Rotas de Soma Entregador
+
+router.get("/hoje/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
+      [req.params.id_user],
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
+
+router.get("/semana/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 7 DAY)",
+      [req.params.id_user],
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
+
+router.get("/mes/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND MONTH(p.data_pedido) = MONTH(NOW())",
+      [req.params.id_user],
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
+
+//Rotas de Soma Cliente
+
+router.get("/hoje/cliente/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_solicitante = ? AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
+      [req.params.id_user],
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
+
+router.get("/semana/cliente/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_solicitante = ? AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 7 DAY)",
+      [req.params.id_user],
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
+
+router.get("/mes/cliente/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_solicitante = ? AND p.data_pedido >= MONTH(p.data_pedido) = MONTH(NOW())",
+      [req.params.id_user],
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
+
+
+//Rotas de mudança de estatus
+
+router.patch("/aceito", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    conn.query(
+      `UPDATE tb007_pedido SET aceito = ?, id_status = 9 WHERE idpedidos = ?`,
+      [req.body.aceito, req.body.id_pedidos],
+      (error, resultado, field) => {
+        conn.release();
+        if (error) {
+          return res.status(500).send({
+            error: error,
+            response: null,
+          });
+        }
+        res.status(201).send({
+          mensagem: "Dados de usuário alterados com sucesso!",
+        });
+      }
+    );
+  });
+});
+
+router.patch("/status-em-coleta", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    conn.query(
+      `UPDATE tb007_pedido SET id_status = ? WHERE idpedidos = ?`,
+      [req.body.id_status, req.body.id_pedidos],
+      (error, resultado, field) => {
+        conn.release();
+        if (error) {
+          return res.status(500).send({
+            error: error,
+            response: null,
+          });
+        }
+        res.status(201).send({
+          mensagem: "Dados de usuário alterados com sucesso!",
+        });
+      }
+    );
+  });
+});
+
+router.patch("/status-em-entrega", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    conn.query(
+      `UPDATE tb007_pedido SET id_status = ? WHERE idpedidos = ?`,
+      [req.body.id_status, req.body.id_pedidos],
+      (error, resultado, field) => {
+        conn.release();
+        if (error) {
+          return res.status(500).send({
+            error: error,
+            response: null,
+          });
+        }
+        res.status(201).send({
+          mensagem: "Dados de usuário alterados com sucesso!",
+        });
+      }
+    );
+  });
+});
+
+router.patch("/status-entregue", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    conn.query(
+      `UPDATE tb007_pedido SET id_status = ? WHERE idpedidos = ?`,
+      [req.body.id_status, req.body.id_pedidos],
+      (error, resultado, field) => {
+        conn.release();
+        if (error) {
+          return res.status(500).send({
+            error: error,
+            response: null,
+          });
+        }
+        res.status(201).send({
+          mensagem: "Dados de usuário alterados com sucesso!",
+        });
+      }
+    );
+  });
+});
+
+//Rotas de exibição
+
+router.get("/suas-entregas/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.id_status = 4 AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
+      [req.params.id_user],
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
+
+router.get("/historic/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ?",
+      [req.params.id_user],
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
+
+router.get("/suas-entregas-entregue/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.id_status = 5 AND p.aceito = 1 AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
+      [req.params.id_user],
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
+
+router.get("/suas-entregas-entrega/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.id_status = 3 AND p.aceito = 1 AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
+      [req.params.id_user],
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
+
+router.get("/suas-entregas-coleta/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.id_status = 8 AND p.aceito = 1 AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
+      [req.params.id_user],
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
+
+router.get("/suas-entregas-fila/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.id_status = 9 AND p.aceito = 1 AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
+      [req.params.id_user],
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
+
+router.get("/suas-entregas-detalhes/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ?  AND p.aceito = 1 AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
+      [req.params.id_user],
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
+
+router.get("/suas-entregas-aceito/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.aceito = 1 AND p.id_status = 3 AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
+      [req.params.id_user],
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
+
+router.get("/suas-entregas-rejeitado/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND p.aceito = 0 AND p.id_status = 7 AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)",
+      [req.params.id_user],
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
+
+router.get("/:id_solicitante", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query(
+      "SELECT tb007_pedido.*, tb001_user.* FROM tb007_pedido JOIN tb001_user ON tb007_pedido.id_entregador = tb001_user.id_users WHERE tb007_pedido.id_solicitante = ?",
+      [req.params.id_solicitante],
+      (error, resultado, fields) => {
+        if (error) {
+          return res.status(500).send({ error: error });
+        }
+        return res.status(200).send({ response: resultado });
+      }
+    );
+  });
+});
 
 router.delete("/delete", (req, res, next) => {
   mysql.getConnection((error, conn) => {
@@ -585,7 +528,7 @@ router.post("/novo", (req, res, next) => {
         req.body.metodo,
         req.body.id_user,
         req.body.status,
-        req.body.numero
+        req.body.numero,
       ],
       (error, resultado, field) => {
         conn.release();

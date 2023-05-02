@@ -123,7 +123,7 @@ router.post("/cadastro", (req, res, next) => {
               return res.status(500).send({ error: errBcrypt });
             }
             conn.query(
-              "INSERT INTO tb001_user (nome, sobrenome, email, senha, id_nivel, id_status) VALUES (?,?,?,?,?,?)",
+              "INSERT INTO tb001_user (nome, sobrenome, email, senha, id_nivel, id_status_user) VALUES (?,?,?,?,?,?)",
               [
                 req.body.nome,
                 req.body.sobrenome,
@@ -199,7 +199,7 @@ router.post("/cadastro", (req, res, next) => {
                 email: results[0].email,
                 senha: results[0].senha,
                 id_nivel: results[0].id_nivel,
-                id_status: results[0].id_status,
+                id_status: results[0].id_status_user,
               },
               process.env.JWT_KEY,
               {
