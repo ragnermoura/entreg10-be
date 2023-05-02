@@ -1,3 +1,4 @@
+
 require("dotenv").config();
 const express = require("express");
 const router = express.Router();
@@ -100,7 +101,7 @@ router.get("/abertos", (req, res, next) => {
     })
   });
 
-//Rotas de Soma
+//Rotas de Soma Entregador
 
 router.get("/hoje/:id_user", (req, res, next) => {
   mysql.getConnection((error, conn) => {
@@ -140,6 +141,108 @@ router.get("/mes/:id_user", (req, res, next) => {
       return res.status(500).send({ error: error });
     }
     conn.query("SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_entregador = ? AND MONTH(p.data_pedido) = MONTH(NOW())", 
+    [req.params.id_user],
+    (error, resultado, fields) => {
+      if (error) {
+        return res.status(500).send({ error: error });
+      }
+      return res.status(200).send({ response: resultado });
+    });
+  });
+});
+
+
+//Rotas de Soma Cliente
+
+router.get("/hoje/cliente/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query("SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_solicitante = ? AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)", 
+    [req.params.id_user],
+    (error, resultado, fields) => {
+      if (error) {
+        return res.status(500).send({ error: error });
+      }
+      return res.status(200).send({ response: resultado });
+    });
+  });
+});
+
+router.get("/semana/cliente/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query("SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_solicitante = ? AND p.data_pedido >= DATE_SUB(NOW(), INTERVAL 7 DAY)", 
+    [req.params.id_user],
+    (error, resultado, fields) => {
+      if (error) {
+        return res.status(500).send({ error: error });
+      }
+      return res.status(200).send({ response: resultado });
+    });
+  });
+});
+
+router.get("/mes/cliente/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query("SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.id_solicitante = ? AND p.data_pedido >= MONTH(p.data_pedido) = MONTH(NOW())", 
+    [req.params.id_user],
+    (error, resultado, fields) => {
+      if (error) {
+        return res.status(500).send({ error: error });
+      }
+      return res.status(200).send({ response: resultado });
+    });
+  });
+});
+
+
+
+//Rotas de Soma Admin
+router.get("/hoje/admin/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query("SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.data_pedido >= DATE_SUB(NOW(), INTERVAL 24 HOUR)", 
+    [req.params.id_user],
+    (error, resultado, fields) => {
+      if (error) {
+        return res.status(500).send({ error: error });
+      }
+      return res.status(200).send({ response: resultado });
+    });
+  });
+});
+
+router.get("/semana/admin/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query("SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE p.data_pedido >= DATE_SUB(NOW(), INTERVAL 7 DAY)", 
+    [req.params.id_user],
+    (error, resultado, fields) => {
+      if (error) {
+        return res.status(500).send({ error: error });
+      }
+      return res.status(200).send({ response: resultado });
+    });
+  });
+});
+
+router.get("/mes/admin/:id_user", (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error });
+    }
+    conn.query("SELECT p.*, d.* FROM tb007_pedido p JOIN tb001_user u ON p.id_solicitante = u.id_users JOIN tb004_dados_empresa d ON d.id_user = u.id_users WHERE MONTH(p.data_pedido) = MONTH(NOW())", 
     [req.params.id_user],
     (error, resultado, fields) => {
       if (error) {
@@ -256,6 +359,7 @@ router.get("/mes/:id_user", (req, res, next) => {
   });
 
 
+
 //Rotas de exibição
 
   router.get("/suas-entregas/:id_user", (req, res, next) => {
@@ -366,6 +470,7 @@ router.get("/mes/:id_user", (req, res, next) => {
     });
   });
 
+
     router.get("/suas-entregas-detalhes/:id_user", (req, res, next) => {
     mysql.getConnection((error, conn) => {
       if (error) {
@@ -470,7 +575,7 @@ router.post("/novo", (req, res, next) => {
       return res.status(500).send({ error: error });
     }
     conn.query(
-      "INSERT INTO tb007_pedido (nome_cliente, endereco_entrega, cep, telefone1, valor_pedido, metodo_pagamento, id_solicitante, id_status) VALUES (?,?,?,?,?,?,?,?)",
+      "INSERT INTO tb007_pedido (nome_cliente, endereco_entrega, cep, telefone1, valor_pedido, metodo_pagamento, id_solicitante, id_status, numero_entrega) VALUES (?,?,?,?,?,?,?,?,?)",
       [
         req.body.nome,
         req.body.endereco,
@@ -480,6 +585,7 @@ router.post("/novo", (req, res, next) => {
         req.body.metodo,
         req.body.id_user,
         req.body.status,
+        req.body.numero
       ],
       (error, resultado, field) => {
         conn.release();
