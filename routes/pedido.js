@@ -62,7 +62,7 @@ router.get("/em-andamento", (req, res, next) => {
       return res.status(500).send({ error: error });
     }
     conn.query(
-      "SELECT * FROM tb007_pedido JOIN tb001_user ON tb007_pedido.id_entregador = tb001_user.id_users WHERE tb007_pedido.id_status = 10;",
+      "SELECT * FROM tb007_pedido JOIN tb001_user ON tb007_pedido.id_entregador = tb001_user.id_users WHERE tb007_pedido.id_status != 5 AND tb007_pedido.id_status != 7;",
       (error, resultado, fields) => {
         if (error) {
           return res.status(500).send({ error: error });
