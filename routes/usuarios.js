@@ -141,6 +141,7 @@ router.post("/cadastro", (req, res, next) => {
                   });
                 }
 
+
                 const response = {
                   dados: {
                     mensagem: "Usuário cadastrado com sucesso",
