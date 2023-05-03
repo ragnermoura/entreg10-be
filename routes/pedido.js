@@ -103,6 +103,11 @@ router.patch("/edit", (req, res, next) => {
             response: null,
           });
         }
+      
+
+        res.status(201).send({
+          mensagem: "Dados de usuário alterados com sucesso!",
+        });
 
         const message = {
           notification: {
@@ -110,7 +115,7 @@ router.patch("/edit", (req, res, next) => {
             body: 'Um novo pedido foi encaminhado á você'
         },
         
-        topic: req.body.id_entregador
+        topic: `${req.body.id_entregador}`
         };
         
         // Send a message to devices subscribed to the provided topic.
@@ -122,13 +127,11 @@ router.patch("/edit", (req, res, next) => {
           .catch((error) => {
             console.log('Error sending message:', error);
           });
-
-        res.status(201).send({
-          mensagem: "Dados de usuário alterados com sucesso!",
-        });
       }
     );
   });
+
+
 });
 
 //Rotas de Soma Entregador
