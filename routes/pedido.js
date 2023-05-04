@@ -597,7 +597,7 @@ router.get("/:id_solicitante", (req, res, next) => {
       return res.status(500).send({ error: error });
     }
     conn.query(
-      "SELECT tb007_pedido.*, tb001_user.* FROM tb007_pedido JOIN tb001_user ON tb007_pedido.id_entregador = tb001_user.id_users WHERE tb007_pedido.id_solicitante = ?",
+      "SELECT tb007_pedido.*, tb001_user.* FROM tb007_pedido JOIN tb001_user ON tb007_pedido.id_solicitante = tb001_user.id_users WHERE tb007_pedido.id_solicitante = ?",
       [req.params.id_solicitante],
       (error, resultado, fields) => {
         if (error) {
