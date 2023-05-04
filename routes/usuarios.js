@@ -4,7 +4,7 @@ const router = express.Router();
 const mysql = require("../mysql").pool;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-require('dotenv').config()
+require("dotenv").config();
 
 router.get("/", (req, res, next) => {
   mysql.getConnection((error, conn) => {
@@ -59,7 +59,7 @@ router.patch("/edit_status_empresa", (req, res, next) => {
   mysql.getConnection((error, conn) => {
     conn.query(
       `UPDATE tb001_user 
-            SET id_status = ?
+            SET id_status_user = ?
             WHERE id_users = ?`,
       [req.body.status, req.body.id_users],
       (error, resultado, field) => {
@@ -140,7 +140,6 @@ router.post("/cadastro", (req, res, next) => {
                     error: error,
                   });
                 }
-
 
                 const response = {
                   dados: {
