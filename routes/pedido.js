@@ -131,6 +131,7 @@ router.get("/em-andamento", async (req, res, next) => {
     {
       model: Tb001_user,
       attributes: ['id_users'],
+      attributes: ['nome'],
       required: true,
 
     }
