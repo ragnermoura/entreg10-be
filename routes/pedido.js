@@ -31,40 +31,40 @@ router.get("/", async (req, res, next) => {
 
 router.get("/abertos", async (req, res, next) => {
    
-  mysql.getConnection((error, conn) => {
-    if (error) {
-      return res.status(500).send({ error: error });
-    }
-    conn.query(
-      "SELECT tb007_pedido.*, tb001_user.nome FROM tb007_pedido JOIN tb001_user ON tb007_pedido.id_solicitante = tb001_user.id_users WHERE tb007_pedido.id_status = 4 OR tb007_pedido.id_status = 10 LIMIT 1",
-      (error, resultado, fields) => {
-        if (error) {
-          return res.status(500).send({ error: error });
-        }
-        return res.status(200).send({ response: resultado });
-      }
-    );
-  }); 
-
-  // const data = await Tb007_pedido.findAll({
-  //  where: {
-    
-  //     id_status: 4  
-  //  },
-  //  include:
-  //   {
-  //     model: Tb001_user,
-  //     attributes: ['id_users'],
-  //     required: true,
-  //     on:{
-        
-  //         'id_users': 'tb007_pedido.id_solicitante'
-        
-  //     }
-
+  // mysql.getConnection((error, conn) => {
+  //   if (error) {
+  //     return res.status(500).send({ error: error });
   //   }
-   
-  // })
+  //   conn.query(
+  //     "SELECT tb007_pedido.*, tb001_user.nome FROM tb007_pedido JOIN tb001_user ON tb007_pedido.id_solicitante = tb001_user.id_users WHERE tb007_pedido.id_status = 4 OR tb007_pedido.id_status = 10 LIMIT 1",
+  //     (error, resultado, fields) => {
+  //       if (error) {
+  //         return res.status(500).send({ error: error });
+  //       }
+  //       return res.status(200).send({ response: resultado });
+  //     }
+  //   );
+  // }); 
+
+  const data = await Tb007_pedido.findAll({
+    where: {
+      id_status: {
+        [Op.or]: [4, 10]
+      }
+    },
+    include: [
+      {
+        model: Tb001_user,
+        attributes: ['nome'],
+        required: true,
+        on: {
+          id_users: Sequelize.col('tb007_pedido.id_solicitante')
+        }
+      }
+    ],
+    limit: 1
+  });
+  
   res.status(200).json({response: data})
 
 });
