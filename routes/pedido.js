@@ -62,7 +62,7 @@ router.get("/abertos", async (req, res, next) => {
         }
       }
     ],
-    limit: 5
+    limit: 1
   });
   
   res.status(200).json({response: data})
