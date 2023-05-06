@@ -49,7 +49,7 @@ router.get("/abertos", async (req, res, next) => {
   const data = await Tb007_pedido.findAll({
     where: {
       id_status: {
-        [Op.or]: [4]
+        [Op.or]: [4, null]
       }
     },
     include: [
