@@ -48,7 +48,7 @@ router.get("/abertos", async (req, res, next) => {
 
   const data = await Tb007_pedido.findAll({
     where: {
-      [Op.and]: [
+      [Op.or]: [
 
         {id_status: {
           [Op.ne]:4
