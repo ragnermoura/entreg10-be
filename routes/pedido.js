@@ -112,7 +112,7 @@ router.patch("/edit", (req, res, next) => {
         const message = {
           notification: {
             title: 'Nova Entrega',
-            body: 'Um novo pedido foi encaminhado á você'
+            body: 'Um novo pedido foi encaminhado a você'
         },
         
         topic: `${req.body.id_entregador}`
