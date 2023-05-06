@@ -54,7 +54,7 @@ router.get("/abertos", async (req, res, next) => {
           [Op.ne]:4
         }}, 
         {id_status: {
-          [Op.ne]:10
+          [Op.ne]:2
         }}, 
 
       ]
