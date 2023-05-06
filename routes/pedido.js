@@ -5,10 +5,13 @@ const mysql = require("../mysql").pool;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { response } = require("../app");
+const { Op, Sequelize } = require('sequelize')
 const { getMessaging } = require('firebase-admin/messaging');
+const Tb007_pedido = require("../models/Pedido");
+const Tb001_user = require("../models/User");
 
-router.get("/", (req, res, next) => {
-  mysql.getConnection((error, conn) => {
+router.get("/", async (req, res, next) => {
+ /*  mysql.getConnection((error, conn) => {
     if (error) {
       console.log(conn, error)
       return res.status(500).send({ error: error });
@@ -20,15 +23,20 @@ router.get("/", (req, res, next) => {
       return res.status(200).send({ response: resultado });
     });
   });
+ */
+  const data = await Tb007_pedido.findAll()
+  res.status(200).json({response: data})
+
 });
 
-router.get("/abertos", (req, res, next) => {
+router.get("/abertos", async (req, res, next) => {
+  /* 
   mysql.getConnection((error, conn) => {
     if (error) {
       return res.status(500).send({ error: error });
     }
     conn.query(
-      "SELECT tb007_pedido.*, tb001_user.nome FROM tb007_pedido JOIN tb001_user ON tb007_pedido.id_solicitante = tb001_user.id_users WHERE tb007_pedido.id_status = 4 LIMIT 1",
+      "SELECT tb007_pedido.*, tb001_user.nome FROM tb007_pedido JOIN tb001_user ON tb007_pedido.id_solicitante = tb001_user.id_users WHERE tb007_pedido.id_status = 4 OR tb007_pedido.id_status = 10 LIMIT 1",
       (error, resultado, fields) => {
         if (error) {
           return res.status(500).send({ error: error });
@@ -36,11 +44,33 @@ router.get("/abertos", (req, res, next) => {
         return res.status(200).send({ response: resultado });
       }
     );
-  });
+  }); */
+
+  const data = await Tb007_pedido.findAll({
+   where: {
+    
+      id_status: 4  
+   },
+   include:
+    {
+      model: Tb001_user,
+      attributes: ['id_users'],
+      required: true,
+      on:{
+        
+          'id_users': 'tb007_pedido.id_solicitante'
+        
+      }
+
+    }
+   
+  })
+  res.status(200).json({response: data})
+
 });
 
-router.get("/fila", (req, res, next) => {
-  mysql.getConnection((error, conn) => {
+router.get("/fila",async (req, res, next) => {
+/*   mysql.getConnection((error, conn) => {
     if (error) {
       return res.status(500).send({ error: error });
     }
@@ -54,10 +84,20 @@ router.get("/fila", (req, res, next) => {
       }
     );
   });
+ */
+  const data = await Tb007_pedido.findAll({
+    where: {
+    
+      [Op.or]: [{id_status: 4}, {id_status: 10}]
+  
+   },
+   })
+   res.status(200).json({response: data})
+ 
 });
 
-router.get("/em-andamento", (req, res, next) => {
-  mysql.getConnection((error, conn) => {
+router.get("/em-andamento", async (req, res, next) => {
+  /* mysql.getConnection((error, conn) => {
     if (error) {
       return res.status(500).send({ error: error });
     }
@@ -70,11 +110,39 @@ router.get("/em-andamento", (req, res, next) => {
         return res.status(200).send({ response: resultado });
       }
     );
-  });
+  }); */
+
+  const data = await Tb007_pedido.findAll({
+    where: {
+     
+       [Op.and]: [
+
+        {id_status: {
+          [Op.ne]:5
+        }}, 
+        {id_status: {
+          [Op.ne]:7
+        }}, 
+
+      ]
+   
+    },
+    include:
+    {
+      model: Tb001_user,
+      attributes: ['id_users'],
+      required: true,
+
+    }
+  })
+    
+   res.status(200).json({response: data})
+ 
+
 });
 
-router.get("/entregue", (req, res, next) => {
-  mysql.getConnection((error, conn) => {
+router.get("/entregue", async (req, res, next) => {
+  /* mysql.getConnection((error, conn) => {
     if (error) {
       return res.status(500).send({ error: error });
     }
@@ -87,7 +155,23 @@ router.get("/entregue", (req, res, next) => {
         return res.status(200).send({ response: resultado });
       }
     );
-  });
+  }); */
+
+  const data = await Tb007_pedido.findAll({
+    where: {
+        id_status:5
+    },
+    include:
+    {
+      model: Tb001_user,
+      attributes: ['id_users'],
+      required: true,
+      
+    }
+  })
+    
+   res.status(200).json({response: data})
+ 
 });
 
 router.patch("/edit", (req, res, next) => {

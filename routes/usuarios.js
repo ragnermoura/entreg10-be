@@ -4,10 +4,12 @@ const router = express.Router();
 const mysql = require("../mysql").pool;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const Tb001_user = require("../models/User");
+const Tb003_status = require("../models/Status");
 require("dotenv").config();
 
-router.get("/", (req, res, next) => {
-  mysql.getConnection((error, conn) => {
+router.get("/", async (req, res, next) => {
+ /*  mysql.getConnection((error, conn) => {
     if (error) {
       return res.status(500).send({ error: error });
     }
@@ -17,7 +19,10 @@ router.get("/", (req, res, next) => {
       }
       return res.status(200).send({ response: resultado });
     });
-  });
+  }); */
+
+  const data = await Tb001_user.findAll()
+  return res.status(200).send({ response: data });
 });
 
 router.get("/entregadores", (req, res, next) => {
@@ -168,9 +173,13 @@ router.post("/cadastro", (req, res, next) => {
       }
     );
   });
+
+  
+
 }),
-  router.post("/login", (req, res, next) => {
-    mysql.getConnection((err, conn) => {
+
+router.post("/login", async (req, res, next) => {
+    /* mysql.getConnection((err, conn) => {
       if (err) {
         return res.status(500).send({ error: error });
       }
@@ -186,6 +195,8 @@ router.post("/cadastro", (req, res, next) => {
             mensagem: "Falha na autenticação.",
           });
         }
+
+
         bcrypt.compare(req.body.senha, results[0].senha, (err, result) => {
           if (err) {
             return res.status(401).send({ mensagem: "Falha na autenticação." });
@@ -216,5 +227,72 @@ router.post("/cadastro", (req, res, next) => {
         });
       });
     });
-  }),
+ */
+   
+    const {email, senha } = req.body
+
+   
+    if(!email){
+      res.status(422).json({message: 'O e-mail é obrigatório'})
+      return
+  }
+  
+  if(!senha){
+      res.status(422).json({message: 'A senha é obrigatória'})
+      return
+  }
+
+  const user = await Tb001_user.findOne({where: {email: email}})
+
+  if(!user){
+      res.status(422).json({message: 'Usuário ou senha inválidos'})
+      return
+  }
+
+  const status = await Tb003_status.findOne(
+    {
+        where: {
+            id_status: user?.id_status_user
+        }
+    }
+)
+
+if(status?.id_status == 2){
+
+  res.status(401).json({message: 'Usuário Desativado'})
+  return
+
+}
+
+const passwordMatch = bcrypt.compareSync(senha, user?.senha)
+
+if(!passwordMatch){
+  res.status(422).json({message: 'Usuário ou senha inválidos'})
+  return
+}
+
+const token = jwt.sign(
+  {
+    id_users: user?.id_users,
+    nome: user?.nome,
+    sobrenome: user?.sobrenome,
+    email: user?.email,
+    senha: user?.senha,
+    id_nivel: user?.id_nivel,
+    id_status: user?.id_status_user,
+  },
+  process.env.JWT_KEY,
+  {
+    expiresIn: "6h",
+  }
+);
+
+
+res.status(200).json({
+  mensagem: "Autenticado com sucesso!",
+  token: token,
+});
+}
+
+),
   (module.exports = router);
