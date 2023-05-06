@@ -30,7 +30,7 @@ router.get("/", async (req, res, next) => {
 });
 
 router.get("/abertos", async (req, res, next) => {
-  /* 
+   
   mysql.getConnection((error, conn) => {
     if (error) {
       return res.status(500).send({ error: error });
@@ -44,27 +44,27 @@ router.get("/abertos", async (req, res, next) => {
         return res.status(200).send({ response: resultado });
       }
     );
-  }); */
+  }); 
 
-  const data = await Tb007_pedido.findAll({
-   where: {
+  // const data = await Tb007_pedido.findAll({
+  //  where: {
     
-      id_status: 4  
-   },
-   include:
-    {
-      model: Tb001_user,
-      attributes: ['id_users'],
-      required: true,
-      on:{
+  //     id_status: 4  
+  //  },
+  //  include:
+  //   {
+  //     model: Tb001_user,
+  //     attributes: ['id_users'],
+  //     required: true,
+  //     on:{
         
-          'id_users': 'tb007_pedido.id_solicitante'
+  //         'id_users': 'tb007_pedido.id_solicitante'
         
-      }
+  //     }
 
-    }
+  //   }
    
-  })
+  // })
   res.status(200).json({response: data})
 
 });
